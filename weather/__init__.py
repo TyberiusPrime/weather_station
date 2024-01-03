@@ -22,6 +22,10 @@ prefix = "zigbee/tele/tasmota_609AD0/"
 
 topic_power_leistung = "stromzaehler/sensor/1/obis/1-0:16.7.0/255/value"
 
+if 'weather' in sys.modules:
+    resource_path = Path(sys.modules["weather"].__file__).parent 
+else:
+    resource_path = Path(__file__).parent
 
 # The callback for when the client receives a CONNACK response from the server.
 def handle_temp_sensor(payload, id, name, new_status):
@@ -71,7 +75,7 @@ def format_power(power):
         return ("+" if power > 0 else "") + "{:.2f}kW".format(power / 1000)
 
 
-background = Image.open(Path(sys.modules['weather'].__file__).parent / "back.png")
+background = Image.open(resource_path / "back.png")
 
 
 async def draw_status(status):
@@ -84,8 +88,9 @@ async def draw_status(status):
     image.paste(background, (0, 0))
 
     # Set font and size
-    font = ImageFont.truetype(Path(sys.modules['weather'].__file__).parent / "coolvetica.otf")
-, 90)
+    font = ImageFont.truetype(
+        resource_path / "font" / "fonts/Piscolabis-Regular.ttf", 85
+    )
 
     # Draw indoor temperature and humidity
     start_y = 15

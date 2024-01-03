@@ -5,7 +5,7 @@ description = ""
 authors = ["Tyberius Prime <tyberius_prime@coonabibba.de>"]
 license = "MIT"
 readme = "README.md"
-include = ["weather/back.png", "weather/coolvetica.otf"]
+include = ["weather/back.png", "weather/font/Piscolabis-Regular.ttf"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
