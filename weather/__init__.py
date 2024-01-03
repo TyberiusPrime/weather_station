@@ -3,6 +3,7 @@
 #
 
 from PIL import Image, ImageDraw, ImageFont
+import sys
 import os
 import aiohttp
 import pkgutil
@@ -70,7 +71,7 @@ def format_power(power):
         return ("+" if power > 0 else "") + "{:.2f}kW".format(power / 1000)
 
 
-background = Image.open(Path(pkgutil.get_data(__name__, "resources")) / "back.png")
+background = Image.open(Path(sys.modules['weather'].__file__).parent / "back.png")
 
 
 async def draw_status(status):
