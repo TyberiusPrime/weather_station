@@ -84,7 +84,8 @@ async def draw_status(status):
     image.paste(background, (0, 0))
 
     # Set font and size
-    font = ImageFont.truetype("coolvetica.otf", 90)
+    font = ImageFont.truetype(Path(sys.modules['weather'].__file__).parent / "coolvetica.otf")
+, 90)
 
     # Draw indoor temperature and humidity
     start_y = 15
