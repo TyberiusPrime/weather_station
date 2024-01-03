@@ -5,6 +5,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 import aiohttp
+import pkgutil
 from asyncio import Lock
 import aiomqtt
 import pprint
@@ -69,6 +70,9 @@ def format_power(power):
         return ("+" if power > 0 else "") + "{:.2f}kW".format(power / 1000)
 
 
+background = Image.open(Path(pkgutil.get_data(__name__, "resources")) / "back.png")
+
+
 async def draw_status(status):
     # Create a 480x800 pixel image with a white background
     image = Image.new("RGB", (480, 800), "white")
@@ -76,7 +80,6 @@ async def draw_status(status):
     draw = ImageDraw.Draw(image)
 
     # load back.png and draw it on the image
-    background = Image.open("back.png")
     image.paste(background, (0, 0))
 
     # Set font and size
