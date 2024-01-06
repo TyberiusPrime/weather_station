@@ -13,6 +13,7 @@ pillow = "^10.2.0"
 aiomqtt = "^1.2.1"
 poetry-dynamic-versioning = "^1.2.0"
 aiohttp = "^3.9.1"
+rich = "^13.7.0"
 
 
 [build-system]

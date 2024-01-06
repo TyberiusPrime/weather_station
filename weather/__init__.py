@@ -10,6 +10,7 @@ import pkgutil
 from asyncio import Lock
 import aiomqtt
 import pprint
+import traceback
 import asyncio
 import time
 from pathlib import Path
@@ -18,14 +19,21 @@ import http.client
 import json
 import paho.mqtt.client as mqtt
 
+from rich.console import Console
+import rich.traceback
+
+console = Console()
+rich.traceback.install(show_locals=True)
+
 prefix = "zigbee/tele/tasmota_609AD0/"
 
 topic_power_leistung = "stromzaehler/sensor/1/obis/1-0:16.7.0/255/value"
 
-if 'weather' in sys.modules:
-    resource_path = Path(sys.modules["weather"].__file__).parent 
+if "weather" in sys.modules:
+    resource_path = Path(sys.modules["weather"].__file__).parent
 else:
     resource_path = Path(__file__).parent
+
 
 # The callback for when the client receives a CONNACK response from the server.
 def handle_temp_sensor(payload, id, name, new_status):
@@ -206,6 +214,7 @@ async def draw_status(status):
     payload = Path("/tmp/weather_data.qoi")
     try:
         async with aiohttp.ClientSession() as session:
+            print("sending")
             async with session.put(
                 "http://192.168.178.106/img", data=open(payload, "rb")
             ) as rep:
@@ -218,6 +227,7 @@ async def draw_status(status):
             # conn.close()
     except Exception as e:
         print("error", e)
+        console.print_exception(show_locals=True)
 
 
 async def every_minute():
@@ -235,23 +245,32 @@ async def every_minute():
 
 async def get_forecast():
     global status
-    url = "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&daily=temperature_2m_max,temperature_2m_min,uv_index_max,rain_sum,precipitation_probability_max&timezone=Europe%2FBerlin&forecast_days=1"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as rep:
-            response = await rep.json()
-            if "daily" in response:
-                async with status_lock:
-                    new_status = status.copy()
-                    new_status["min_temp"] = response["daily"]["temperature_2m_min"][0]
-                    new_status["max_temp"] = response["daily"]["temperature_2m_max"][0]
-                    new_status["uv"] = response["daily"]["uv_index_max"][0]
-                    new_status["rain"] = response["daily"]["rain_sum"][0]
-                    new_status["rain_probability"] = response["daily"][
-                        "precipitation_probability_max"
-                    ][0]
-                    if new_status != status:
-                        status = new_status
-                        await draw_status(status)
+    try:
+        url = "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&daily=temperature_2m_max,temperature_2m_min,uv_index_max,rain_sum,precipitation_probability_max&timezone=Europe%2FBerlin&forecast_days=1"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as rep:
+                response = await rep.json()
+                if "daily" in response:
+                    async with status_lock:
+                        new_status = status.copy()
+                        new_status["min_temp"] = response["daily"][
+                            "temperature_2m_min"
+                        ][0]
+                        new_status["max_temp"] = response["daily"][
+                            "temperature_2m_max"
+                        ][0]
+                        new_status["uv"] = response["daily"]["uv_index_max"][0]
+                        new_status["rain"] = response["daily"]["rain_sum"][0]
+                        new_status["rain_probability"] = response["daily"][
+                            "precipitation_probability_max"
+                        ][0]
+                        if new_status != status:
+                            status = new_status
+                            await draw_status(status)
+    except:
+        print("Could not connect weather forcast")
+        console.print_exception(show_locals=True)
+        return
 
 
 async def every_hour():
