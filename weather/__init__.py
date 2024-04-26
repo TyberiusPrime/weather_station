@@ -21,7 +21,10 @@ import paho.mqtt.client as mqtt
 
 from rich.console import Console
 import rich.traceback
-from . import draw
+try:
+    from . import draw
+except:
+    import draw
 
 
 console = Console()
@@ -62,6 +65,9 @@ status = {
     "max_temp": None,
     "hour": None,
     "minute": None,
+    'day': None,
+    'month': None,
+    'year': None,
     "dhw_energy_consumption": 0,
     "heat_energy_consumption": 0,
 }
@@ -92,6 +98,10 @@ async def every_minute():
             new_status = status.copy()
             new_status["hour"] = int(time.strftime("%H"))
             new_status["minute"] = int(time.strftime("%M"))
+            new_status["day"] = int(time.strftime("%d"))
+            new_status["month"] = int(time.strftime("%m"))
+            new_status["year"] = int(time.strftime("%Y"))
+
             if new_status != status:
                 status = new_status
                 await draw.draw_status(status, resource_path)

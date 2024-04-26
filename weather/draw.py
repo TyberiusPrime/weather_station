@@ -74,16 +74,23 @@ async def draw_status(status, resource_path_):
     # time
     print("draw")
     if status["hour"] is not None:
-        y = start_y
+        y = start_y + spacing * 7
         draw.text(
-            (160, y),
+            (20, y),
             f"{status['hour']}:{status['minute']:02}",
             font=font,
             fill="black",
             anchor="lt",
         )
+        draw.text(
+            (480, y),
+           f"{status['day']}.{status['month']}.{status['year']}",
+            font=font,
+            fill="black",
+            anchor="rt",
+        )
         print("clock")
-        image.paste(get_img("clock"), (10, y - 15))
+        #image.paste(get_img("clock"), (10, y - 15))
 
     # outside temp
     y = start_y + spacing * 1
@@ -156,7 +163,7 @@ async def draw_status(status, resource_path_):
     )
     uv = status.get("uv", 0)
     uvx = 400
-    uvy = 0
+    uvy = 10
     if uv >= 11:
         image.paste(get_img("uv_violet"), (uvx, uvy))
     elif uv > 8:
@@ -188,7 +195,8 @@ async def draw_status(status, resource_path_):
 
 
 
-    y = start_y + spacing * 6
+    y = start_y + spacing * 0
+    x3 = 400
     power_solar = status.get("power_solar",-1)
     if power_solar is not None:
         if power_solar > 0:
@@ -196,16 +204,16 @@ async def draw_status(status, resource_path_):
         else:
             color = "black"
         draw.text(
-            (x2, y), format_power(power_solar), font=font, fill=color, anchor="rt"
+            (x3, y), format_power(power_solar), font=font, fill=color, anchor="rt"
         )
     if (
         status["dhw_energy_consumption"] > 0
         or status["heat_energy_consumption"] > 0
     ):
-        image.paste(get_img('heat'), (0, y - 15))
+        image.paste(get_img('heat'), (-10, y - 15))
     else:
 
-        image.paste(get_img('power'), (0, y - 15))
+        image.paste(get_img('power'), (-10, y - 15))
 
     # I need to rotate the image 90 degrees
     image.save("/tmp/weather_data_org.png")
