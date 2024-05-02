@@ -58,8 +58,8 @@ status = {
     "humidity_indoor": None,
     "temp_outdoor1": None,
     "humidity_outdoor1": None,
-    "temp_outdoor2": None,
-    "humidity_outdoor2": None,
+    "temp_indoor2": None,
+    "humidity_indoor2": None,
     "power_solar": None,
     "power_solar_last_time": 0,
     "garage_offen": None,
@@ -168,6 +168,7 @@ async def handle_message(client, msg):
                         new_status["garage_offen"] = open
                 handle_temp_sensor(payload, "0xF2E2", "indoor", new_status)
                 handle_temp_sensor(payload, "0x7554", "outdoor1", new_status)
+                handle_temp_sensor(payload, "0xC3CF", "indoor2", new_status)
         elif msg.topic.matches("panasonic_heat_pump/main/Heat_Energy_Consumption"):
             new_status["heat_energy_consumption"] = float(msg.payload)
         elif msg.topic.matches("panasonic_heat_pump/main/DHW_Energy_Consumption"):

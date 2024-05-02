@@ -129,24 +129,24 @@ async def draw_status(status, resource_path_):
     )
     # hinten...
     y = start_y + spacing * 3
-    image.paste(get_img("hinten"), (10, y - 15))
+    image.paste(get_img("haus"), (10, y - 15))
     draw.text(
         (x1, y),
-        format_temp(status["temp_outdoor2"]),
+        format_temp(status["temp_indoor2"]),
         font=font,
         fill="black",
         anchor="rt",
     )
     draw.text(
         (x2, y),
-        format_humidity(status["humidity_outdoor2"]),
+        format_humidity(status["humidity_indoor2"]),
         font=font,
         fill="black",
         anchor="rt",
     )
 
     y = start_y + spacing * 4
-    image.paste(get_img("haus"), (10, y - 15))
+    image.paste(get_img("wintergarten"), (10, y - 15))
     draw.text(
         (x1, y),
         format_temp(status["temp_indoor"]),
