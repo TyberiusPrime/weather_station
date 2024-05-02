@@ -21,6 +21,7 @@ import paho.mqtt.client as mqtt
 
 from rich.console import Console
 import rich.traceback
+
 try:
     from . import draw
 except:
@@ -60,21 +61,22 @@ status = {
     "temp_outdoor2": None,
     "humidity_outdoor2": None,
     "power_solar": None,
+    "power_solar_last_time": 0,
     "garage_offen": None,
     "min_temp": None,
     "max_temp": None,
     "hour": None,
     "minute": None,
-    'day': None,
-    'month': None,
-    'year': None,
+    "day": None,
+    "month": None,
+    "year": None,
     "dhw_energy_consumption": 0,
     "heat_energy_consumption": 0,
 }
 
 
 async def every_second():
-    if 'DO_NOT_SEND' in os.environ:
+    if "DO_NOT_SEND" in os.environ:
         f = Path(__file__).parent / "draw.py"
         h = f.read_text()
         while True:
@@ -90,7 +92,6 @@ async def every_second():
             await asyncio.sleep(1)
 
 
-
 async def every_minute():
     global status
     while True:
@@ -101,6 +102,11 @@ async def every_minute():
             new_status["day"] = int(time.strftime("%d"))
             new_status["month"] = int(time.strftime("%m"))
             new_status["year"] = int(time.strftime("%Y"))
+            if (
+                new_status["power_solar"] is not None
+                and time.time() - new_status["power_solar_last_time"] > 10 * 60
+            ):
+                new_status["power_solar"] = None
 
             if new_status != status:
                 status = new_status
@@ -151,6 +157,7 @@ async def handle_message(client, msg):
         new_status = status.copy()
         if msg.topic.matches(topic_power_leistung):
             new_status["power_solar"] = -1 * float(msg.payload)
+            new_status["power_solar_last_time"] = time.time()
 
         elif msg.topic.matches(prefix + "SENSOR"):
             payload = json.loads(msg.payload)
