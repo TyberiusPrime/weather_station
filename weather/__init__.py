@@ -33,7 +33,7 @@ rich.traceback.install(show_locals=True)
 
 prefix = "zigbee/tele/tasmota_609AD0/"
 
-topic_power_leistung = "stromzaehler/sensor/1/obis/1-0:16.7.0/255/value"
+topic_power_leistung = "tele/stromzaehler_B56270/SENSOR"
 
 if "weather" in sys.modules:
     resource_path = Path(sys.modules["weather"].__file__).parent
@@ -156,7 +156,8 @@ async def handle_message(client, msg):
         print("mqtt", msg.topic, str(msg.payload))
         new_status = status.copy()
         if msg.topic.matches(topic_power_leistung):
-            new_status["power_solar"] = -1 * float(msg.payload)
+            info = json.loads(msg.payload)
+            new_status["power_solar"] = -1 * info["Power_curr"]
             new_status["power_solar_last_time"] = time.time()
 
         elif msg.topic.matches(prefix + "SENSOR"):
