@@ -157,7 +157,7 @@ async def handle_message(client, msg):
         new_status = status.copy()
         if msg.topic.matches(topic_power_leistung):
             info = json.loads(msg.payload)
-            new_status["power_solar"] = -1 * info["Power_curr"]
+            new_status["power_solar"] = -1 * info["SML1"]["Power_curr"]
             new_status["power_solar_last_time"] = time.time()
 
         elif msg.topic.matches(prefix + "SENSOR"):
