@@ -95,23 +95,28 @@ async def every_second():
 async def every_minute():
     global status
     while True:
-        async with status_lock:
-            new_status = status.copy()
-            new_status["hour"] = int(time.strftime("%H"))
-            new_status["minute"] = int(time.strftime("%M"))
-            new_status["day"] = int(time.strftime("%d"))
-            new_status["month"] = int(time.strftime("%m"))
-            new_status["year"] = int(time.strftime("%Y"))
-            if (
-                new_status["power_solar"] is not None
-                and time.time() - new_status["power_solar_last_time"] > 10 * 60
-            ):
-                new_status["power_solar"] = None
+        try:
+            async with status_lock:
+                new_status = status.copy()
+                new_status["hour"] = int(time.strftime("%H"))
+                new_status["minute"] = int(time.strftime("%M"))
+                new_status["day"] = int(time.strftime("%d"))
+                new_status["month"] = int(time.strftime("%m"))
+                new_status["year"] = int(time.strftime("%Y"))
+                if (
+                    new_status["power_solar"] is not None
+                    and time.time() - new_status["power_solar_last_time"] > 10 * 60
+                ):
+                    new_status["power_solar"] = None
 
-            if new_status != status:
-                status = new_status
-                await draw.draw_status(status, resource_path)
-        await asyncio.sleep(60)
+                if new_status != status:
+                    status = new_status
+                    await draw.draw_status(status, resource_path)
+            await asyncio.sleep(60)
+        except Exception:
+            console.print_exception(show_locals=True)
+            await asyncio.sleep(60)
+            continue
 
 
 async def get_forecast():
